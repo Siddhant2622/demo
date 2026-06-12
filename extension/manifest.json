@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "SkillMap AI (New)",
+  "version": "1.2",
+  "description": "Auto-fill forms and get instant AI recommendations based on your SkillMap AI profile.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

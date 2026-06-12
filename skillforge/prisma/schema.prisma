@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Scholarship {
+  id              String   @id @default(cuid())
+  title           String
+  provider        String
+  amount          String
+  deadline        String
+  eligibility     String?
+  description     String?
+  application_url String?
+  category        String?
+  
+  applications    ScholarshipApplication[]
+}
+
+model ScholarshipApplication {
+  id               String   @id @default(cuid())
+  user_id          String
+  scholarship_id   String
+  status           String   // e.g., "Application Submitted", "Under Review", "Interview Round"
+  submitted_at     DateTime @default(now())
+  application_data String   // JSON string of all the application form fields
+  
+  scholarship      Scholarship @relation(fields: [scholarship_id], references: [id])
+  documents        ApplicationDocument[]
+}
+
+model ApplicationDocument {
+  id               String   @id @default(cuid())
+  application_id   String
+  document_type    String   // e.g., "resume", "transcript", "id_proof"
+  file_url         String   // Base64 string or file path
+  
+  application      ScholarshipApplication @relation(fields: [application_id], references: [id])
+}
+
+model Resume {
+  id          String   @id @default(cuid())
+  user_id     String
+  title       String
+  content     String   // JSON string of all resume sections
+  template    String   @default("modern")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  scores      ResumeScore[]
+}
+
+model ResumeScore {
+  id              String   @id @default(cuid())
+  resume_id       String
+  user_id         String
+  ats_score       Int
+  keyword_match   Int
+  recommendations String   // JSON string
+  created_at      DateTime @default(now())
+  
+  resume          Resume @relation(fields: [resume_id], references: [id], onDelete: Cascade)
+}
+
+model LinkedinAnalysis {
+  id               String   @id @default(cuid())
+  user_id          String
+  linkedin_score   Int
+  profile_strength String   // JSON string of section scores
+  recommendations  String   // JSON string
+  created_at       DateTime @default(now())
+}
+
+model CareerScore {
+  id             String   @id @default(cuid())
+  user_id        String   @unique
+  overall_score  Int
+  resume_score   Int
+  ats_score      Int
+  linkedin_score Int
+  updated_at     DateTime @updatedAt
+}

@@ -1,0 +1,11 @@
+*.zip
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.local
+.next/
+dist/
+build/
+.vscode/
+temp_skillforge/

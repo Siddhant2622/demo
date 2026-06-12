@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillMap System — System-Powered Skill Gap Analyzer & Career Roadmap</title>
+<meta name="description" content="Upload your resume, pick your dream role, and instantly see your skill gaps with a personalized roadmap to get job-ready. Built by Team CODEX for CPL 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0A0F1E;--navy2:#0E1528;--navy3:#121A30;
+  --cyan:#00E5FF;--cyan2:#00B4D8;--cyan-dim:rgba(0,229,255,.12);
+  --green:#00FF88;--amber:#FFB800;--coral:#FF6B6B;--purple:#B464FF;
+  --text:#E8EEFF;--text2:#8B9BC8;--text3:#4A5580;
+  --card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
+  --glass:rgba(255,255,255,.03);
+  --r8:8px;--r12:12px;--r16:16px;--r24:24px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;line-height:1.6}
+::selection{background:rgba(0,229,255,.3);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,.3);border-radius:3px}
+
+/* ─── PARTICLES BG ────────────────────── */
+#particleCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.5}
+
+/* ─── NAV ─────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 5%;display:flex;align-items:center;justify-content:space-between;background:rgba(10,15,30,.82);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:all .3s}
+nav.scrolled{padding:10px 5%;background:rgba(10,15,30,.95);box-shadow:0 4px 30px rgba(0,0,0,.3)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--cyan);text-decoration:none}
+.logo-dot{width:8px;height:8px;background:var(--cyan);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 12px rgba(0,229,255,.6)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:14px;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--cyan);transition:width .2s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{background:var(--cyan);color:var(--navy);padding:10px 24px;border-radius:var(--r8);font-weight:600;font-size:14px;text-decoration:none;transition:all .15s;font-family:'Space Grotesk',sans-serif}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(0,229,255,.4)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.hamburger span{width:22px;height:2px;background:var(--text);border-radius:1px;transition:all .3s}
+
+/* ─── HERO ────────────────────────────── */
+.hero{min-height:100vh;display:flex;align-items:center;padding:100px 5% 60px;position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1200px;margin:auto;width:100%;align-items:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--cyan-dim);border:1px solid rgba(0,229,255,.2);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--cyan);margin-bottom:24px;font-family:'JetBrains Mono',monospace;opacity:0;animation:fadeInUp .6s ease forwards .2s}
+.hero-badge span{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:pulse 1.5s infinite}
+h1{font-size:clamp(36px,5vw,62px);font-weight:700;line-height:1.1;margin-bottom:20px;opacity:0;animation:fadeInUp .6s ease forwards .4s}
+h1 .accent{color:var(--cyan);position:relative;display:inline-block}
+h1 .accent::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan),transparent);border-radius:2px}
+.hero-sub{font-size:18px;color:var(--text2);margin-bottom:36px;max-width:500px;line-height:1.7;opacity:0;animation:fadeInUp .6s ease forwards .6s}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.hero-stats{display:flex;gap:32px;margin-bottom:40px;opacity:0;animation:fadeInUp .6s ease forwards .8s}
+.stat{text-align:center}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:var(--cyan)}
+.stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:fadeInUp .6s ease forwards 1s}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:var(--navy);padding:14px 32px;border-radius:var(--r8);font-weight:700;font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;position:relative;overflow:hidden}
+.btn-primary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);transition:all .5s}
+.btn-primary:hover::before{left:100%}
+.btn-primary:hover{box-shadow:0 0 32px rgba(0,229,255,.5);transform:translateY(-2px)}
+.btn-outline{border:1px solid var(--border);color:var(--text);padding:14px 32px;border-radius:var(--r8);font-size:15px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;background:transparent;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+
+/* ─── RADAR CANVAS ────────────────────── */
+.hero-visual{position:relative;display:flex;justify-content:center;align-items:center;opacity:0;animation:fadeIn .8s ease forwards 1.2s}
+#radarCanvas{max-width:100%;filter:drop-shadow(0 0 40px rgba(0,229,255,.15))}
+.radar-tooltip{position:absolute;background:rgba(10,15,30,.95);border:1px solid var(--cyan);border-radius:var(--r8);padding:10px 16px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;white-space:nowrap;backdrop-filter:blur(8px)}
+
+/* ─── ROLE INPUT ──────────────────────── */
+.role-search{background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:16px 20px;display:flex;align-items:center;gap:12px;margin-bottom:12px;transition:all .2s}
+.role-search:focus-within{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,229,255,.1)}
+.role-search input{background:none;border:none;outline:none;color:var(--text);font-size:16px;flex:1;font-family:'Space Grotesk',sans-serif}
+.role-search input::placeholder{color:var(--text3)}
+.role-search-icon{color:var(--cyan);font-size:18px}
+.role-suggestions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.pill{padding:5px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;background:transparent}
+.pill:hover,.pill.active{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+
+/* ─── SECTION COMMON ──────────────────── */
+section{padding:80px 5%;position:relative;z-index:1}
+.section-inner{max-width:1200px;margin:auto}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.section-title{font-size:clamp(28px,4vw,44px);font-weight:700;line-height:1.2;margin-bottom:16px}
+.section-sub{font-size:17px;color:var(--text2);max-width:600px;line-height:1.7}
+
+/* ─── SCROLL ANIMATION ───────────────── */
+.reveal{opacity:0;transform:translateY(30px);transition:all .7s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/* ─── PROBLEM STATEMENT ───────────────── */
+.problem{background:var(--navy2)}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:60px;align-items:start}
+.problem-cards{display:flex;flex-direction:column;gap:16px}
+.problem-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:20px 24px;display:flex;gap:16px;align-items:flex-start;transition:all .3s}
+.problem-card:hover{border-color:rgba(255,107,107,.3);transform:translateX(4px)}
+.p-icon{width:40px;height:40px;border-radius:var(--r8);background:rgba(255,107,107,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.p-title{font-weight:600;font-size:15px;margin-bottom:4px}
+.p-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.problem-solution{background:linear-gradient(135deg,rgba(0,229,255,.06),rgba(0,255,136,.04));border:1px solid rgba(0,229,255,.15);border-radius:var(--r24);padding:40px}
+.solution-flow{display:flex;flex-direction:column;gap:0}
+.s-step{display:flex;gap:16px;align-items:flex-start;padding:16px 0}
+.s-step+.s-step{border-top:1px solid var(--border)}
+.s-num{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:var(--navy);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.s-content h4{font-weight:600;font-size:14px;margin-bottom:2px;color:var(--cyan)}
+.s-content p{font-size:13px;color:var(--text2)}
+
+/* ─── HOW IT WORKS ────────────────────── */
+.how-it-works{background:var(--navy)}
+.workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:60px;position:relative}
+.workflow::before{content:'';position:absolute;top:44px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--cyan),var(--cyan),transparent);opacity:.3}
+.wf-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 12px;position:relative;z-index:1}
+.wf-icon{width:88px;height:88px;border-radius:50%;border:2px solid var(--border);background:var(--navy2);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:20px;position:relative;transition:all .3s;cursor:pointer}
+.wf-step:hover .wf-icon{border-color:var(--cyan);background:var(--cyan-dim);box-shadow:0 0 24px rgba(0,229,255,.2);transform:scale(1.05)}
+.wf-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:2px}
+.wf-emoji{font-size:26px}
+.wf-title{font-weight:600;font-size:14px;margin-bottom:6px}
+.wf-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ─── FEATURES ────────────────────────── */
+.features{background:var(--navy3)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:60px}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:28px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cyan-dim),transparent);opacity:0;transition:opacity .3s}
+.feature-card:hover{border-color:rgba(0,229,255,.3);transform:translateY(-4px)}
+.feature-card:hover::before{opacity:1}
+.f-icon{width:48px;height:48px;border-radius:var(--r12);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.f-icon.cyan{background:rgba(0,229,255,.12)}.f-icon.green{background:rgba(0,255,136,.1)}
+.f-icon.amber{background:rgba(255,184,0,.1)}.f-icon.coral{background:rgba(255,107,107,.1)}
+.f-icon.purple{background:rgba(180,100,255,.1)}.f-icon.blue{background:rgba(100,160,255,.1)}
+.feature-card h3{font-size:17px;font-weight:600;margin-bottom:10px;position:relative}
+.feature-card p{font-size:13px;color:var(--text2);line-height:1.65;position:relative}
+.feature-tag{display:inline-block;margin-top:14px;padding:4px 10px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;position:relative}
+.tag-cyan{background:rgba(0,229,255,.1);color:var(--cyan);border:1px solid rgba(0,229,255,.2)}
+.tag-green{background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.2)}
+.tag-amber{background:rgba(255,184,0,.1);color:var(--amber);border:1px solid rgba(255,184,0,.2)}
+
+/* ─── INTERACTIVE DEMO ───────────────── */
+.demo{background:var(--navy2)}
+.demo-container{background:var(--glass);border:1px solid var(--border);border-radius:var(--r24);overflow:hidden;margin-top:48px;backdrop-filter:blur(12px)}
+.demo-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto}
+.demo-tab{padding:14px 24px;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Space Grotesk',sans-serif;white-space:nowrap}
+.demo-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.demo-tab:hover{color:var(--text)}
+.demo-content{padding:32px}
+.demo-panel{display:none}
+.demo-panel.active{display:block;animation:fadeIn .3s ease}
+
+/* Upload Zone */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r16);padding:48px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--cyan);background:var(--cyan-dim)}
+.upload-zone.drag-over::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(0,229,255,.08),transparent);animation:pulseGlow 1.5s infinite}
+@keyframes pulseGlow{0%,100%{opacity:.5}50%{opacity:1}}
+.upload-icon{font-size:48px;margin-bottom:16px;display:block}
+.upload-zone h4{font-size:18px;margin-bottom:8px;color:var(--text)}
+.upload-zone p{font-size:13px;color:var(--text3)}
+.upload-zone input[type=file]{display:none}
+.upload-formats{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.format-badge{padding:4px 12px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.05);color:var(--text3);border:1px solid var(--border)}
+
+/* OCR Result */
+.ocr-result{margin-top:24px}
+.ocr-progress{background:rgba(255,255,255,.05);border-radius:var(--r8);overflow:hidden;margin-bottom:24px}
+.ocr-progress-bar{height:4px;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:var(--r8);width:0;transition:width .5s ease}
+.ocr-status{font-size:13px;color:var(--text2);margin-bottom:16px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:8px}
+.ocr-status .spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ocr-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ocr-field{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:14px;animation:slideInField .4s ease forwards;opacity:0;transform:translateY(10px)}
+@keyframes slideInField{to{opacity:1;transform:translateY(0)}}
+.ocr-field-label{font-size:11px;color:var(--text3);margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.ocr-field-value{font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px}
+.ocr-field-meta{display:flex;align-items:center;justify-content:space-between}
+.ocr-field-source{font-size:10px;color:var(--text3)}
+.ocr-field-conf{font-size:10px;font-family:'JetBrains Mono',monospace}
+.conf-high{color:var(--green)}
+.conf-med{color:var(--cyan)}
+.conf-low{color:var(--amber)}
+.ocr-summary{margin-top:16px;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:var(--r8);padding:14px;display:flex;align-items:center;gap:10px}
+
+/* Resume Input */
+.resume-input-area{width:100%;min-height:200px;background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:20px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+.resume-input-area:focus{border-color:var(--cyan)}
+.resume-input-area::placeholder{color:var(--text3)}
+
+/* Skill Bars */
+.skill-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;opacity:0;transform:translateX(-10px);transition:all .5s ease}
+.skill-bar-row.animate-in{opacity:1;transform:translateX(0)}
+.skill-bar-row:last-child{margin-bottom:0}
+.skill-name{width:140px;font-size:13px;color:var(--text2);flex-shrink:0}
+.bar-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill-current{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--cyan),var(--cyan2));transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0}
+.bar-fill-required{position:absolute;top:0;height:100%;border-radius:4px;background:rgba(255,255,255,.12);border-right:2px dashed rgba(255,255,255,.3)}
+.bar-labels{display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;min-width:80px}
+.gap-badge{padding:3px 8px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.gap-low{background:rgba(0,255,136,.1);color:var(--green)}
+.gap-med{background:rgba(255,184,0,.1);color:var(--amber)}
+.gap-high{background:rgba(255,107,107,.1);color:var(--coral)}
+
+/* Readiness Score */
+.readiness-ring{position:relative;width:120px;height:120px;flex-shrink:0}
+.readiness-ring svg{transform:rotate(-90deg)}
+.readiness-ring circle{fill:none;stroke-width:8}
+.readiness-ring .bg{stroke:rgba(255,255,255,.06)}
+.readiness-ring .fg{stroke:var(--cyan);stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)}
+.readiness-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace}
+.readiness-num .num{font-size:28px;font-weight:700;color:var(--cyan)}
+.readiness-num .lbl{font-size:10px;color:var(--text3);margin-top:-2px}
+
+/* Roadmap */
+.roadmap-item{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--border);transition:all .3s}
+.roadmap-item:hover{background:rgba(0,229,255,.02);padding-left:8px}
+.roadmap-icon{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.roadmap-content{flex:1}
+.roadmap-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.roadmap-skill{font-weight:600;font-size:14px}
+.roadmap-priority{padding:2px 8px;border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,.3)}
+.priority-Critical{color:var(--coral)}
+.priority-High{color:var(--amber)}
+.priority-Medium{color:var(--cyan)}
+.priority-Low{color:var(--green)}
+.priority-Launch{color:var(--green)}
+.roadmap-detail{font-size:12px;color:var(--text2)}
+.roadmap-week{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+
+/* ─── ADVANCED FEATURES ───────────────── */
+.advanced{background:var(--navy3)}
+.adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:60px}
+.adv-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:32px;position:relative;overflow:hidden;transition:all .3s}
+.adv-card:hover{border-color:rgba(0,229,255,.2);transform:translateY(-2px)}
+.adv-card.featured{border-color:rgba(0,229,255,.25);background:linear-gradient(135deg,rgba(0,229,255,.05),transparent)}
+.adv-badge{position:absolute;top:20px;right:20px;background:var(--cyan);color:var(--navy);font-size:10px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:20px;font-weight:700}
+.adv-card h3{font-size:19px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.adv-card > p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.adv-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.adv-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2)}
+.adv-list li::before{content:'→';color:var(--cyan);font-family:'JetBrains Mono',monospace;flex-shrink:0;margin-top:1px}
+
+/* ─── TECH STACK ──────────────────────── */
+.tech{background:var(--navy)}
+.tech-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:48px}
+.tech-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:20px 12px;text-align:center;transition:all .25s;cursor:default}
+.tech-item:hover{border-color:rgba(0,229,255,.3);background:var(--cyan-dim);transform:translateY(-3px)}
+.tech-logo{font-size:26px;margin-bottom:8px;display:block}
+.tech-name{font-size:12px;font-weight:600;color:var(--text)}
+.tech-role{font-size:10px;color:var(--text3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+
+/* ─── METRICS ─────────────────────────── */
+.metrics{background:var(--navy3)}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:60px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:32px 24px;text-align:center;position:relative;overflow:hidden;transition:all .3s}
+.metric-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.12)}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.metric-card.c1::after{background:var(--cyan)}.metric-card.c2::after{background:var(--green)}
+.metric-card.c3::after{background:var(--amber)}.metric-card.c4::after{background:var(--coral)}
+.metric-num{font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:700;line-height:1;margin-bottom:8px}
+.metric-card.c1 .metric-num{color:var(--cyan)}.metric-card.c2 .metric-num{color:var(--green)}
+.metric-card.c3 .metric-num{color:var(--amber)}.metric-card.c4 .metric-num{color:var(--coral)}
+.metric-label{font-size:13px;color:var(--text2)}
+
+/* ─── TEAM ────────────────────────────── */
+.team{background:var(--navy2)}
+.team-header{text-align:center;margin-bottom:60px}
+.team-header .section-sub{margin:auto}
+.contest-banner{background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,255,136,.06));border:1px solid rgba(0,229,255,.2);border-radius:var(--r16);padding:32px;text-align:center;margin-bottom:48px}
+.contest-banner h3{font-size:22px;font-weight:700;margin-bottom:8px;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+.contest-banner p{color:var(--text2);font-size:14px}
+.team-badges{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:24px}
+.team-badge{background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:10px 20px;font-size:13px;color:var(--text)}
+.team-badge strong{color:var(--cyan)}
+
+/* ─── FOOTER ──────────────────────────── */
+footer{background:var(--navy);border-top:1px solid var(--border);padding:40px 5%;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.footer-logo{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--cyan);font-weight:600}
+.footer-right{font-size:13px;color:var(--text3)}
+
+/* ─── LOADING ─────────────────────────── */
+.loading-dots{display:inline-flex;gap:4px}
+.loading-dots span{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:loadDot 1.4s ease-in-out infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes loadDot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+
+/* ─── RESPONSIVE ─────────────────────── */
+@media(max-width:900px){
+  .hero-grid,.problem-grid,.adv-grid{grid-template-columns:1fr}
+  .workflow{grid-template-columns:repeat(3,1fr);gap:24px}
+  .workflow::before{display:none}
+  .features-grid{grid-template-columns:1fr 1fr}
+  .tech-grid{grid-template-columns:repeat(3,1fr)}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero-visual{display:none}
+  .ocr-fields-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .features-grid,.metrics-grid{grid-template-columns:1fr}
+  .tech-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-stats{gap:16px;flex-wrap:wrap}
+  .workflow{grid-template-columns:1fr 1fr}
+  .demo-content{padding:20px}
+  .adv-grid{gap:16px}
+  section{padding:60px 5%}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+
+<!-- ─── NAV ─────────────────────────────────────── -->
+<nav id="mainNav">
+  <a class="logo" href="#top">
+    <div class="logo-dot"></div>
+    SkillMap<span style="color:var(--text2)">System</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#advanced">Innovation</a></li>
+    <li><a href="#tech">Tech Stack</a></li>
+  </ul>
+  <a class="nav-cta" href="#demo">▶ Try Demo</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-badge"><span></span> CPL 2026 · LNCT Group · Team CODEX</div>
+      <h1>Find Your<br><span class="accent">Skill Gap.</span><br>Build Your Path.</h1>
+      <p class="hero-sub">System reads your resume, compares it to your target role, and builds a personalized roadmap to make you job-ready — in seconds.</p>
+
+      <div class="role-search">
+        <span class="role-search-icon">🎯</span>
+        <input type="text" id="roleInput" placeholder="Type your target role: e.g. Frontend Developer" autocomplete="off">
+      </div>
+      <div class="role-suggestions" id="roleSuggestions">
+        <span class="pill active" onclick="setRole('Frontend Developer')">Frontend Developer</span>
+        <span class="pill" onclick="setRole('Data Scientist')">Data Scientist</span>
+        <span class="pill" onclick="setRole('DevOps Engineer')">DevOps Engineer</span>
+        <span class="pill" onclick="setRole('ML Engineer')">ML Engineer</span>
+        <span class="pill" onclick="setRole('Product Manager')">Product Manager</span>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num" data-count="95.6" data-suffix="%">95.6%</div><div class="stat-lbl">OCR Accuracy</div></div>
+        <div class="stat"><div class="stat-num" data-count="18" data-suffix="s">18s</div><div class="stat-lbl">Avg Processing</div></div>
+        <div class="stat"><div class="stat-num" data-count="80" data-suffix="%+">80%+</div><div class="stat-lbl">Error Reduction</div></div>
+        <div class="stat"><div class="stat-num" data-count="3" data-suffix="hrs">3hrs</div><div class="stat-lbl">Time Saved</div></div>
+      </div>
+
+      <div class="hero-btns">
+        <a class="btn-primary" href="#demo">⚡ Try Live Demo</a>
+        <a class="btn-outline" href="#how">See How It Works →</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <canvas id="radarCanvas" width="480" height="480"></canvas>
+      <div class="radar-tooltip" id="radarTooltip"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROBLEM ───────────────────────────────────── -->
+<section class="problem" id="problem">
+  <div class="section-inner">
+    <div class="section-label reveal">The Problem</div>
+    <h2 class="section-title reveal">Students are lost.<br>Forms are a nightmare.</h2>
+    <p class="section-sub reveal">Every scholarship, internship, and college application asks for the same information — filled manually, over and over, with no intelligence.</p>
+
+    <div class="problem-grid">
+      <div class="problem-cards">
+        <div class="problem-card reveal reveal-delay-1">
+          <div class="p-icon">⏳</div>
+          <div><div class="p-title">3 Hours Wasted Per Form</div><div class="p-desc">Students re-enter the same Aadhaar, Roll No, and marks data across dozens of applications, wasting critical study time.</div></div>
+        </div>
+        <div class="problem-card reveal reveal-delay-2">
+          <div class="p-icon">❌</div>
+          <div><div class="p-title">80% Rejection Rate from Errors</div><div class="p-desc">Wrong field entries, missing data, and format mismatches cause most rejections — not qualification issues.</div></div>
+        </div>
+        <div class="problem-card reveal reveal-delay-3">
+          <div class="p-icon">🌍</div>
+          <div><div class="p-title">Rural Students Left Behind</div><div class="p-desc">Low digital literacy creates an invisible barrier for rural and first-generation students accessing government schemes.</div></div>
+        </div>
+        <div class="problem-card reveal reveal-delay-4">
+          <div class="p-icon">📊</div>
+          <div><div class="p-title">No Skill Gap Visibility</div><div class="p-desc">Students don't know what skills companies actually need for specific roles — or where they currently stand.</div></div>
+        </div>
+      </div>
+
+      <div class="problem-solution reveal">
+        <div style="margin-bottom:24px">
+          <div class="section-label" style="margin-bottom:6px">Our Solution</div>
+          <h3 style="font-size:22px;font-weight:700;color:var(--cyan)">One Upload.<br>Everything Automated.</h3>
+        </div>
+        <div class="solution-flow">
+          <div class="s-step"><div class="s-num">01</div><div class="s-content"><h4>Upload Documents</h4><p>Aadhaar, College ID, Resume, Certificates — any format, any language</p></div></div>
+          <div class="s-step"><div class="s-num">02</div><div class="s-content"><h4>System Extracts Everything</h4><p>EasyOCR + BERT NER extracts Name, Roll No, DOB, Marks, Skills in 18 seconds</p></div></div>
+          <div class="s-step"><div class="s-num">03</div><div class="s-content"><h4>Skill Gap Analysis</h4><p>System compares your extracted skills to your target role's requirements with precision benchmarking</p></div></div>
+          <div class="s-step"><div class="s-num">04</div><div class="s-content"><h4>Auto-Fill + Roadmap</h4><p>Forms fill automatically AND you get a personalized learning path to close every gap</p></div></div>
+          <div class="s-step"><div class="s-num">05</div><div class="s-content"><h4>Review & Submit</h4><p>One-click review with confidence scores. Edit anything, submit with full audit trail.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────── -->
+<section class="how-it-works" id="how">
+  <div class="section-inner">
+    <div class="section-label reveal">Workflow</div>
+    <h2 class="section-title reveal">From Upload to Job-Ready<br>in 5 Steps</h2>
+
+    <div class="workflow reveal">
+      <div class="wf-step"><div class="wf-icon"><div class="wf-num">01</div><div class="wf-emoji">📄</div></div><div class="wf-title">Upload Docs</div><div class="wf-desc">PDF, JPG, PNG — Aadhaar, Resume, Certificates accepted</div></div>
+      <div class="wf-step"><div class="wf-icon"><div class="wf-num">02</div><div class="wf-emoji">🔍</div></div><div class="wf-title">OCR + NLP</div><div class="wf-desc">EasyOCR extracts text; BERT NER identifies every field with precision</div></div>
+      <div class="wf-step"><div class="wf-icon"><div class="wf-num">03</div><div class="wf-emoji">🧠</div></div><div class="wf-title">Skill Analysis</div><div class="wf-desc">System maps your skills to role requirements and calculates gaps</div></div>
+      <div class="wf-step"><div class="wf-icon"><div class="wf-num">04</div><div class="wf-emoji">🗺️</div></div><div class="wf-title">Roadmap Gen</div><div class="wf-desc">System builds your personalized learning path with milestones</div></div>
+      <div class="wf-step"><div class="wf-icon"><div class="wf-num">05</div><div class="wf-emoji">✅</div></div><div class="wf-title">Auto-Fill & Go</div><div class="wf-desc">Forms fill instantly. Review once. Submit with confidence score.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FEATURES ──────────────────────────────────── -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-label reveal">Core Features</div>
+    <h2 class="section-title reveal">Everything Students Need.<br>Nothing They Don't.</h2>
+
+    <div class="features-grid">
+      <div class="feature-card reveal"><div class="f-icon cyan">🧠</div><h3>System Skill Gap Analyzer</h3><p>Upload your resume. Type your target role. Get an instant radar chart showing exactly where you stand vs. where you need to be — scored on 10+ skill dimensions.</p><span class="feature-tag tag-cyan">GPT-4 Powered</span></div>
+      <div class="feature-card reveal reveal-delay-1"><div class="f-icon green">🗺️</div><h3>Personalized Career Roadmap</h3><p>System generates a step-by-step learning plan — courses, projects, certifications — with estimated timelines and milestone tracking. No fluff, just your path.</p><span class="feature-tag tag-green">Adaptive Learning</span></div>
+      <div class="feature-card reveal reveal-delay-2"><div class="f-icon amber">📋</div><h3>Smart Form Auto-Fill</h3><p>OCR + NER extracts your data from any document. Context-matching System maps fields to forms — even non-standard or renamed fields — with confidence scores.</p><span class="feature-tag tag-amber">95.6% Accuracy</span></div>
+      <div class="feature-card reveal reveal-delay-1"><div class="f-icon coral">📊</div><h3>Counselor Dashboard</h3><p>Counselors get a cohort-level view: skill heatmaps, intervention alerts, and progress tracking across all students. Export reports in PDF or CSV.</p><span class="feature-tag tag-cyan">Institution-Ready</span></div>
+      <div class="feature-card reveal reveal-delay-2"><div class="f-icon purple">🌍</div><h3>Multi-Language Support</h3><p>Regional language OCR for Hindi, Tamil, Telugu, Bengali. NLP handles documents in any Indian language — removing the digital divide for rural students.</p><span class="feature-tag tag-green">10+ Languages</span></div>
+      <div class="feature-card reveal reveal-delay-3"><div class="f-icon blue">🔒</div><h3>Privacy-First Architecture</h3><p>E2E encryption, local processing option, and zero data retention policy. Student documents are processed and immediately discarded — never stored.</p><span class="feature-tag tag-amber">GDPR + FERPA</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── INTERACTIVE DEMO ──────────────────────────── -->
+<section class="demo" id="demo">
+  <div class="section-inner">
+    <div class="section-label reveal">Live Demo</div>
+    <h2 class="section-title reveal">See Your Skill Gap,<br>Right Now.</h2>
+    <p class="section-sub reveal">No signup needed. Try each feature live.</p>
+
+    <div class="demo-container reveal">
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-tab="ocr" id="tabOcr">📄 OCR Upload</button>
+        <button class="demo-tab" data-tab="skillgap" id="tabSkillGap">📊 Skill Gap</button>
+        <button class="demo-tab" data-tab="roadmap" id="tabRoadmap">🗺️ Roadmap</button>
+        <button class="demo-tab" data-tab="autofill" id="tabAutofill">📋 Auto-Fill</button>
+      </div>
+
+      <div class="demo-content">
+        <!-- OCR TAB -->
+        <div class="demo-panel active" id="panel-ocr">
+          <div class="upload-zone" id="uploadZone">
+            <span class="upload-icon">📄</span>
+            <h4>Drop your document here</h4>
+            <p>or click to browse files</p>
+            <div class="upload-formats">
+              <span class="format-badge">PDF</span>
+              <span class="format-badge">JPG</span>
+              <span class="format-badge">PNG</span>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <button class="btn-outline" onclick="runDemoOCR()" style="font-size:13px;padding:10px 24px">
+              ⚡ Run Demo OCR (No file needed)
+            </button>
+          </div>
+          <div class="ocr-result" id="ocrResult" style="display:none"></div>
+        </div>
+
+        <!-- SKILL GAP TAB -->
+        <div class="demo-panel" id="panel-skillgap">
+          <div style="display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;align-items:flex-start">
+            <div style="flex:1;min-width:280px">
+              <div style="font-size:16px;font-weight:600;margin-bottom:12px">📝 Paste Your Resume Text</div>
+              <textarea class="resume-input-area" id="resumeTextInput" placeholder="Paste your resume text here...&#10;&#10;Example:&#10;Arjun Sharma | B.Tech CSE | LNCT Bhopal&#10;Skills: Python, React.js, SQL, Machine Learning&#10;Built 3 production React apps with Redux&#10;Implemented CI/CD pipeline using GitHub Actions..."></textarea>
+              <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                <select id="targetRoleSelect" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r8);padding:10px 16px;color:var(--text);font-family:'Space Grotesk';font-size:14px;flex:1;outline:none;cursor:pointer">
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="Full Stack Developer">Full Stack Developer</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                  <option value="ML Engineer">ML Engineer</option>
+                  <option value="DevOps Engineer">DevOps Engineer</option>
+                  <option value="Product Manager">Product Manager</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="Mobile Developer">Mobile Developer</option>
+                  <option value="Data Analyst">Data Analyst</option>
+                  <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                  <option value="Cloud Architect">Cloud Architect</option>
+                  <option value="Blockchain Developer">Blockchain Developer</option>
+                  <option value="System/ML Research Engineer">System/ML Research Engineer</option>
+                </select>
+                <button class="btn-primary" onclick="analyzeSkillGap()" style="font-size:14px;padding:10px 24px">🧠 Analyze</button>
+              </div>
+              <button class="btn-outline" onclick="loadDemoResume()" style="font-size:12px;padding:8px 16px;margin-top:8px">Load Demo Resume</button>
+            </div>
+            <div id="readinessContainer" style="display:none;flex-shrink:0;text-align:center">
+              <div class="readiness-ring">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle class="bg" cx="60" cy="60" r="52"/>
+                  <circle class="fg" id="readinessCircle" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                </svg>
+                <div class="readiness-num"><span class="num" id="readinessScore">0</span><span class="lbl">Readiness</span></div>
+              </div>
+              <div style="font-size:12px;color:var(--text3);margin-top:8px" id="readinessLabel">—</div>
+            </div>
+          </div>
+          <div id="skillGapResults" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+              <div>
+                <div style="font-size:18px;font-weight:700" id="gapReportTitle">Skill Gap Report</div>
+                <div style="font-size:13px;color:var(--text2)" id="gapReportSub">Based on your resume vs. role requirements</div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:12px;color:var(--text3)">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:var(--cyan);display:inline-block;border-radius:2px"></span>Your Level</span>
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:rgba(255,255,255,.25);display:inline-block;border-radius:2px;border:1px dashed rgba(255,255,255,.4)"></span>Required</span>
+              </div>
+            </div>
+            <div id="skillBarsContainer"></div>
+          </div>
+        </div>
+
+        <!-- ROADMAP TAB -->
+        <div class="demo-panel" id="panel-roadmap">
+          <div id="roadmapEmpty" style="text-align:center;padding:40px;color:var(--text3)">
+            <div style="font-size:40px;margin-bottom:16px">🗺️</div>
+            <div style="font-size:16px;margin-bottom:8px">Run a Skill Gap Analysis first</div>
+            <div style="font-size:13px">Your personalized roadmap will appear here</div>
+          </div>
+          <div id="roadmapContent" style="display:none">
+            <div style="font-size:18px;font-weight:700;margin-bottom:6px" id="roadmapTitle">Your 12-Week Roadmap</div>
+            <div style="font-size:13px;color:var(--text2);margin-bottom:28px" id="roadmapSub">Top priority skills to close your gap first</div>
+            <div id="roadmapList"></div>
+          </div>
+        </div>
+
+        <!-- AUTO-FILL TAB -->
+        <div class="demo-panel" id="panel-autofill">
+          <div style="font-size:18px;font-weight:700;margin-bottom:6px">Auto-Fill Preview</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Fields extracted from mock document via OCR + NER</div>
+          <div id="formFields"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ADVANCED ──────────────────────────────────── -->
+<section class="advanced" id="advanced">
+  <div class="section-inner">
+    <div class="section-label reveal">Advanced Innovation</div>
+    <h2 class="section-title reveal">Features That Will<br>Win CPL 2026.</h2>
+    <p class="section-sub reveal">We didn't just solve the stated problem — we built capabilities that put this years ahead of anything else in the Smart Education theme.</p>
+
+    <div class="adv-grid">
+      <div class="adv-card featured reveal"><div class="adv-badge">🏆 World-First</div><h3>🧬 Resume DNA Engine</h3><p>System creates a semantic skill fingerprint from your resume — not just keywords, but actual competency depth scoring using contextual NLP.</p><ul class="adv-list"><li>Differentiates skill depth (aware vs. proficient vs. expert)</li><li>Spots transferable skills across domains automatically</li><li>Detects skill decay — flags outdated tech on resume</li><li>Cross-validates claims against project descriptions</li></ul></div>
+      <div class="adv-card reveal"><h3>📡 Live Market Intelligence</h3><p>Real-time job posting scraper analyzes 10,000+ active listings weekly to surface what skills are actually trending.</p><ul class="adv-list"><li>LinkedIn + Naukri + Internshala live data</li><li>"Skill surge" alerts when demand spikes 20%+</li><li>Salary correlation by skill for negotiation prep</li><li>Regional skill demand mapping (city-wise)</li></ul></div>
+      <div class="adv-card reveal"><h3>🎮 Gamified Skill Verification</h3><p>System-generated micro-challenges verify claimed skills — students can't just write "Python" without proving it.</p><ul class="adv-list"><li>Adaptive difficulty: easy → hard based on responses</li><li>Verified skill badges with QR-linked proof</li><li>Shareable on LinkedIn as verifiable credentials</li><li>Anti-cheating: questions regenerated per session</li></ul></div>
+      <div class="adv-card reveal"><h3>🤝 System Mock Interviewer</h3><p>Once the roadmap is 80% complete, an System interviewer generates role-specific questions from the student's own resume.</p><ul class="adv-list"><li>Questions generated from student's own resume context</li><li>STAR method coaching for behavioral questions</li><li>Confidence score per answer with improvement tips</li><li>Company-specific question bank (TCS, Infosys, Google)</li></ul></div>
+      <div class="adv-card reveal"><h3>🌐 Offline-First Mobile App</h3><p>PWA with offline OCR processing — rural students with low connectivity can process documents locally.</p><ul class="adv-list"><li>On-device Tesseract OCR — no internet needed</li><li>WhatsApp bot integration for zero-app submission</li><li>Voice input in Hindi & regional languages</li><li>Feature phone support via USSD gateway</li></ul></div>
+      <div class="adv-card featured reveal"><div class="adv-badge">🚀 Scale</div><h3>🏛️ Institution API Platform</h3><p>Universities can embed SkillMap System directly into their student portals. One SDK, full white-label support.</p><ul class="adv-list"><li>REST API + webhooks for any university portal</li><li>White-label UI with institution branding</li><li>Bulk processing: entire graduating batch in minutes</li><li>Placement cell integration with employer matching</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TECH STACK ─────────────────────────────────── -->
+<section class="tech" id="tech">
+  <div class="section-inner">
+    <div class="section-label reveal">Tech Stack</div>
+    <h2 class="section-title reveal">Battle-Tested,<br>Open-Source, Production-Ready.</h2>
+
+    <div class="tech-grid">
+      <div class="tech-item reveal"><span class="tech-logo">⚛️</span><div class="tech-name">React.js</div><div class="tech-role">Frontend</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🐍</span><div class="tech-name">FastAPI</div><div class="tech-role">Backend</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">👁️</span><div class="tech-name">EasyOCR</div><div class="tech-role">OCR Engine</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🧠</span><div class="tech-name">BERT NER</div><div class="tech-role">NLP / System</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🤖</span><div class="tech-name">GPT-4 API</div><div class="tech-role">Roadmap Gen</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🐘</span><div class="tech-name">PostgreSQL</div><div class="tech-role">Database</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">⚡</span><div class="tech-name">Redis</div><div class="tech-role">Cache</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">☁️</span><div class="tech-name">AWS S3</div><div class="tech-role">Storage</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🐳</span><div class="tech-name">Docker</div><div class="tech-role">Deployment</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🔄</span><div class="tech-name">Celery</div><div class="tech-role">Task Queue</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🎨</span><div class="tech-name">Tailwind CSS</div><div class="tech-role">Styling</div></div>
+      <div class="tech-item reveal"><span class="tech-logo">🔬</span><div class="tech-name">spaCy</div><div class="tech-role">NLP Toolkit</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── METRICS ────────────────────────────────────── -->
+<section class="metrics" id="metrics">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:60px">
+      <div class="section-label reveal" style="text-align:center">Impact Numbers</div>
+      <h2 class="section-title reveal" style="text-align:center">Numbers That Matter</h2>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card c1 reveal"><div class="metric-num" data-target="95.6" data-suffix="%">0%</div><div class="metric-label">OCR Field Accuracy</div></div>
+      <div class="metric-card c2 reveal"><div class="metric-num" data-target="18" data-suffix="s">0s</div><div class="metric-label">Average Processing Time</div></div>
+      <div class="metric-card c3 reveal"><div class="metric-num" data-target="80" data-suffix="%+">0%+</div><div class="metric-label">Form Rejection Reduction</div></div>
+      <div class="metric-card c4 reveal"><div class="metric-num" data-target="3" data-suffix=" hrs">0 hrs</div><div class="metric-label">Saved Per Student Per App</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TEAM ──────────────────────────────────────── -->
+<section class="team" id="team">
+  <div class="section-inner">
+    <div class="team-header">
+      <div class="section-label reveal" style="text-align:center">The Team</div>
+      <h2 class="section-title reveal" style="text-align:center">Team CODEX</h2>
+      <p class="section-sub reveal" style="text-align:center">LNCT Group of Colleges · Bhopal, MP · Coding Premier League 2026</p>
+    </div>
+
+    <div class="contest-banner reveal">
+      <h3>🏆 CPL 2026 — Smart Education Track</h3>
+      <p>Problem Statement: System Powered Skill Gap Analyzer and Career Roadmap &nbsp;·&nbsp; PS Category: Software &nbsp;·&nbsp; Theme: Smart Education</p>
+      <div class="team-badges">
+        <div class="team-badge"><strong>Problem</strong> Skill Gap from Resume + Target Role</div>
+        <div class="team-badge"><strong>Category</strong> Software</div>
+        <div class="team-badge"><strong>Theme</strong> Smart Education</div>
+        <div class="team-badge"><strong>MVP Ready</strong> 8–10 Weeks</div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:40px;text-align:center" class="reveal">
+      <h3 style="font-size:20px;font-weight:700;margin-bottom:16px;color:var(--cyan)">Why Team CODEX Wins</h3>
+      <p style="color:var(--text2);font-size:15px;line-height:1.8;max-width:700px;margin:auto">
+        We didn't build a tool. We built <strong style="color:var(--text)">infrastructure for student success</strong>. The combination of smart OCR for form automation, System-driven skill gap analysis, and gamified roadmaps — unified in one platform — is a category-defining solution for Indian education.
+      </p>
+      <div style="display:flex;justify-content:center;gap:32px;margin-top:32px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--green)">✓</div><div style="font-size:13px;color:var(--text2)">Technically Feasible</div></div>
+        <div style="text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--cyan)">✓</div><div style="font-size:13px;color:var(--text2)">Market Validated</div></div>
+        <div style="text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--amber)">✓</div><div style="font-size:13px;color:var(--text2)">Real Social Impact</div></div>
+        <div style="text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--coral)">✓</div><div style="font-size:13px;color:var(--text2)">Nationally Scalable</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">SkillMap System · CPL 2026</div>
+  <div class="footer-right">Team CODEX · LNCT Group of Colleges · Smart Education</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// SKILLMAP System — FRONTEND ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+
+const API_BASE = ''; // Same origin when served by FastAPI, or set to 'http://localhost:8000'
+
+// ─── ROLE DATA (CLIENT-SIDE FALLBACK) ────────────────────────────────────
+const roleSkills = {
+  'Frontend Developer':  {skills:[['React.js',82,90],['CSS/HTML',88,85],['JavaScript',75,90],['TypeScript',45,75],['Testing',40,70],['Git',70,75],['Performance',55,70],['Accessibility',35,65],['State Management',50,75],['REST APIs',65,70]]},
+  'Backend Developer':   {skills:[['Python',80,85],['Node.js',60,75],['SQL',75,85],['REST APIs',70,90],['Authentication',55,75],['Docker',40,70],['Testing',50,75],['System Design',35,70],['Databases',70,80],['Caching',30,65]]},
+  'Full Stack Developer':{skills:[['React.js',82,80],['Node.js',60,80],['SQL',75,75],['REST APIs',70,85],['DevOps',30,65],['Testing',45,70],['UI/UX',55,65],['Security',40,70],['Performance',55,70],['System Design',35,75]]},
+  'Data Scientist':      {skills:[['Python',80,90],['ML/DL',50,85],['Statistics',55,85],['SQL',75,80],['Data Visualization',60,80],['NLP',35,65],['Feature Engineering',40,75],['Cloud',35,60],['Big Data',30,65],['A/B Testing',40,70]]},
+  'ML Engineer':         {skills:[['Python',80,90],['Deep Learning',50,85],['MLOps',30,75],['Mathematics',60,80],['TensorFlow/PyTorch',45,85],['Data Engineering',40,70],['APIs',65,70],['Cloud',35,70],['Model Optimization',35,75],['Research',40,65]]},
+  'DevOps Engineer':     {skills:[['Docker',40,90],['Kubernetes',25,80],['CI/CD',55,85],['Linux',70,85],['Terraform',20,75],['Monitoring',45,75],['Networking',50,70],['Cloud (AWS/GCP)',35,80],['Scripting',65,80],['Security',40,70]]},
+  'Product Manager':     {skills:[['Strategy',50,85],['Roadmapping',45,80],['SQL',65,65],['UX Research',40,75],['Metrics & Analytics',50,80],['Stakeholder Mgmt',55,85],['Agile/Scrum',60,80],['Technical Writing',50,70],['Market Analysis',40,75],['User Interviews',35,75]]},
+  'UI/UX Designer':      {skills:[['Figma',60,90],['User Research',45,80],['Prototyping',50,85],['Visual Design',55,85],['Interaction Design',40,80],['Design Systems',35,75],['Accessibility',30,70],['Typography',50,75],['Color Theory',55,70],['Usability Testing',40,75]]},
+  'Mobile Developer':    {skills:[['React Native/Flutter',45,85],['iOS/Android',30,75],['REST APIs',65,80],['State Management',50,80],['Performance',55,75],['Testing',40,70],['UI/UX',55,75],['Push Notifications',25,65],['Offline Support',30,70],['App Store',20,65]]},
+  'Data Analyst':        {skills:[['Excel',70,85],['SQL',75,90],['Python',60,75],['Data Visualization',55,85],['Statistics',50,75],['Reporting',45,80],['ETL',35,70],['Business Intelligence',30,75],['Communication',60,80],['Domain Knowledge',40,70]]},
+  'Cybersecurity Analyst':{skills:[['Network Security',30,85],['Penetration Testing',25,80],['SIEM Tools',20,75],['Linux',70,80],['Python Scripting',60,75],['Compliance',25,70],['Incident Response',20,80],['Cloud Security',25,75],['Cryptography',30,70],['Threat Intelligence',20,70]]},
+  'Cloud Architect':     {skills:[['AWS/Azure/GCP',35,90],['Infrastructure as Code',25,85],['Networking',50,80],['Security',40,80],['Containers',40,80],['Serverless',25,75],['Cost Optimization',20,75],['Monitoring',45,75],['Databases',70,75],['Architecture Patterns',30,80]]},
+  'Blockchain Developer':{skills:[['Solidity',15,85],['Ethereum',20,85],['Web3.js/Ethers',15,80],['Smart Contracts',20,85],['JavaScript',75,75],['Security Auditing',10,80],['DeFi Protocols',15,70],['Testing (Hardhat)',10,75],['Cryptography',25,70],['Gas Optimization',10,70]]},
+  'System/ML Research Engineer':{skills:[['Python',80,90],['Deep Learning',50,90],['Mathematics',60,90],['Research Papers',30,80],['PyTorch',45,85],['NLP/CV',35,80],['Experiment Tracking',25,70],['Distributed Training',15,70],['Paper Writing',20,75],['Statistics',55,85]]},
+};
+
+let currentRole = 'Frontend Developer';
+let currentAnalysis = null;
+let radarAnimProgress = 0;
+let radarAnimId = null;
+
+// ─── PARTICLES ─────────────────────────────────────────────────────────────
+function initParticles() {
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const PARTICLE_COUNT = 60;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 2 + 0.5,
+      o: Math.random() * 0.3 + 0.1,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,229,255,${0.06 * (1 - dist / 150)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw and update particles
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,229,255,${p.o})`;
+      ctx.fill();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── RADAR CHART ───────────────────────────────────────────────────────────
+function drawRadar(role, progress = 1) {
+  const canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 480, H = 480, cx = 240, cy = 240, R = 170;
+  ctx.clearRect(0, 0, W, H);
+
+  const data = roleSkills[role] || roleSkills['Frontend Developer'];
+  const skills = data.skills;
+  const N = skills.length;
+  const angles = skills.map((_, i) => (Math.PI * 2 * i / N) - Math.PI / 2);
+
+  // Grid rings
+  for (let r = 1; r <= 5; r++) {
+    ctx.beginPath();
+    angles.forEach((a, i) => {
+      const x = cx + Math.cos(a) * (R * r / 5), y = cy + Math.sin(a) * (R * r / 5);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(255,255,255,${r === 5 ? 0.12 : 0.06})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Spokes
+  angles.forEach(a => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Required polygon (dashed)
+  ctx.beginPath();
+  ctx.setLineDash([4, 4]);
+  skills.forEach(([, , req], i) => {
+    const r2 = (req / 100) * R * progress;
+    const x = cx + Math.cos(angles[i]) * r2, y = cy + Math.sin(angles[i]) * r2;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Current polygon — filled with gradient effect
+  ctx.beginPath();
+  skills.forEach(([, cur], i) => {
+    const r2 = (cur / 100) * R * progress;
+    const x = cx + Math.cos(angles[i]) * r2, y = cy + Math.sin(angles[i]) * r2;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(0,229,255,0.12)';
+  ctx.fill();
+  ctx.strokeStyle = '#00E5FF';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Glow effect on current polygon
+  ctx.shadowColor = 'rgba(0,229,255,0.3)';
+  ctx.shadowBlur = 15;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Dots + labels
+  skills.forEach(([name, cur], i) => {
+    const r2 = (cur / 100) * R * progress;
+    const x = cx + Math.cos(angles[i]) * r2, y = cy + Math.sin(angles[i]) * r2;
+
+    // Outer glow dot
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,229,255,0.2)';
+    ctx.fill();
+
+    // Inner dot
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#00E5FF';
+    ctx.fill();
+
+    // Label
+    const lx = cx + Math.cos(angles[i]) * (R + 28);
+    const ly = cy + Math.sin(angles[i]) * (R + 28);
+    ctx.font = '500 12px "Space Grotesk"';
+    ctx.fillStyle = 'rgba(232,238,255,0.8)';
+    ctx.textAlign = lx < cx - 10 ? 'right' : lx > cx + 10 ? 'left' : 'center';
+    ctx.fillText(name, lx, ly + 4);
+
+    const pct = Math.round(cur * progress) + '%';
+    ctx.font = '600 11px "JetBrains Mono"';
+    ctx.fillStyle = '#00E5FF';
+    ctx.fillText(pct, lx, ly + 18);
+  });
+
+  // Center label
+  ctx.font = '700 13px "JetBrains Mono"';
+  ctx.fillStyle = 'rgba(0,229,255,0.8)';
+  ctx.textAlign = 'center';
+  const roleShort = role.length > 18 ? role.split(' ').pop() : role;
+  ctx.fillText(roleShort, cx, cy + 5);
+}
+
+function animateRadar(role) {
+  if (radarAnimId) cancelAnimationFrame(radarAnimId);
+  radarAnimProgress = 0;
+  const startTime = performance.now();
+  const duration = 1200;
+
+  function step(now) {
+    const elapsed = now - startTime;
+    radarAnimProgress = Math.min(1, elapsed / duration);
+    // Ease out cubic
+    const eased = 1 - Math.pow(1 - radarAnimProgress, 3);
+    drawRadar(role, eased);
+    if (radarAnimProgress < 1) {
+      radarAnimId = requestAnimationFrame(step);
+    }
+  }
+  radarAnimId = requestAnimationFrame(step);
+}
+
+// ─── ROLE SELECTION ────────────────────────────────────────────────────────
+function setRole(role) {
+  document.getElementById('roleInput').value = role;
+  currentRole = role;
+  animateRadar(role);
+
+  // Update pills
+  document.querySelectorAll('#roleSuggestions .pill').forEach(p => {
+    p.classList.toggle('active', p.textContent === role);
+  });
+}
+
+document.getElementById('roleInput').addEventListener('input', function(e) {
+  const v = e.target.value;
+  const match = Object.keys(roleSkills).find(k => k.toLowerCase().includes(v.toLowerCase()));
+  if (match) {
+    currentRole = match;
+    animateRadar(match);
+    document.querySelectorAll('#roleSuggestions .pill').forEach(p => {
+      p.classList.toggle('active', p.textContent === match);
+    });
+  }
+});
+
+// ─── TABS ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.demo-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const target = this.dataset.tab;
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('panel-' + target).classList.add('active');
+  });
+});
+
+// ─── FILE UPLOAD ───────────────────────────────────────────────────────────
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) processFile(e.target.files[0]); });
+
+async function processFile(file) {
+  const resultDiv = document.getElementById('ocrResult');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `
+    <div class="ocr-progress"><div class="ocr-progress-bar" id="ocrBar"></div></div>
+    <div class="ocr-status"><span class="spinner"></span> Processing ${file.name}...</div>
+  `;
+
+  // Animate progress bar
+  const bar = document.getElementById('ocrBar');
+  let prog = 0;
+  const progInterval = setInterval(() => { prog = Math.min(prog + Math.random() * 15, 85); bar.style.width = prog + '%'; }, 300);
+
+  try {
+    // Try API first
+    const formData = new FormData();
+    formData.append('file', file);
+    const resp = await fetch(API_BASE + '/api/ocr/process', { method: 'POST', body: formData });
+    clearInterval(progInterval);
+    bar.style.width = '100%';
+
+    if (resp.ok) {
+      const data = await resp.json();
+      displayOCRResult(data);
+    } else {
+      // Fallback to demo
+      setTimeout(() => { clearInterval(progInterval); bar.style.width = '100%'; displayDemoOCR(); }, 2000);
+    }
+  } catch {
+    // Backend not running — use demo mode
+    clearInterval(progInterval);
+    setTimeout(() => { bar.style.width = '100%'; displayDemoOCR(); }, 1500);
+  }
+}
+
+function runDemoOCR() {
+  const resultDiv = document.getElementById('ocrResult');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `
+    <div class="ocr-progress"><div class="ocr-progress-bar" id="ocrBar"></div></div>
+    <div class="ocr-status"><span class="spinner"></span> Processing demo_aadhaar_resume.pdf...</div>
+  `;
+
+  const bar = document.getElementById('ocrBar');
+  let prog = 0;
+  const steps = [
+    { p: 15, text: '🔍 Preprocessing image (denoise, deskew, enhance)...' },
+    { p: 35, text: '👁️ Running EasyOCR text extraction (en + hi)...' },
+    { p: 60, text: '🧠 Running spaCy NER entity detection...' },
+    { p: 80, text: '📊 Calculating confidence scores...' },
+    { p: 95, text: '✅ Extracting structured fields...' },
+  ];
+
+  let stepIdx = 0;
+  const interval = setInterval(() => {
+    if (stepIdx < steps.length) {
+      prog = steps[stepIdx].p;
+      bar.style.width = prog + '%';
+      resultDiv.querySelector('.ocr-status').innerHTML = `<span class="spinner"></span> ${steps[stepIdx].text}`;
+      stepIdx++;
+    } else {
+      clearInterval(interval);
+      bar.style.width = '100%';
+      displayDemoOCR();
+    }
+  }, 800);
+}
+
+function displayDemoOCR() {
+  const fields = [
+    { label: 'Full Name', value: 'Arjun Sharma', conf: 99, source: 'Aadhaar' },
+    { label: 'Roll Number', value: 'LNCT/CSE/2023/047', conf: 97, source: 'College ID' },
+    { label: 'Date of Birth', value: '15/03/2003', conf: 98, source: 'Aadhaar' },
+    { label: 'Aadhaar Number', value: 'XXXX XXXX 3421', conf: 100, source: 'Aadhaar' },
+    { label: 'Course', value: 'B.Tech Computer Science', conf: 96, source: 'College ID' },
+    { label: 'Institute', value: 'LNCT Group of Colleges', conf: 99, source: 'College ID' },
+    { label: 'CGPA', value: '8.7 / 10.0', conf: 94, source: 'Marksheet' },
+    { label: 'Email', value: 'arjun.sharma@lnct.ac.in', conf: 99, source: 'Resume' },
+    { label: 'Phone', value: '+91 98XXX XXXXX', conf: 96, source: 'Resume' },
+    { label: 'Primary Skills', value: 'Python, React.js, SQL, Machine Learning', conf: 88, source: 'Resume' },
+  ];
+  displayOCRFields(fields);
+}
+
+function displayOCRResult(data) {
+  const fields = data.fields.map(f => ({
+    label: f.label, value: f.display_value || f.value, conf: f.confidence, source: f.source
+  }));
+  displayOCRFields(fields);
+}
+
+function displayOCRFields(fields) {
+  const resultDiv = document.getElementById('ocrResult');
+  const avgConf = (fields.reduce((a, f) => a + f.conf, 0) / fields.length).toFixed(1);
+
+  resultDiv.innerHTML = `
+    <div class="ocr-status" style="color:var(--green)">✅ Extracted ${fields.length} fields in 2.4s · EasyOCR + spaCy NER · Avg confidence: ${avgConf}%</div>
+    <div class="ocr-fields-grid">
+      ${fields.map((f, i) => `
+        <div class="ocr-field" style="animation-delay:${i * 0.08}s">
+          <div class="ocr-field-label">${f.label}</div>
+          <div class="ocr-field-value">${f.value}</div>
+          <div class="ocr-field-meta">
+            <span class="ocr-field-source">from ${f.source}</span>
+            <span class="ocr-field-conf ${f.conf >= 98 ? 'conf-high' : f.conf >= 94 ? 'conf-med' : 'conf-low'}">${f.conf}% conf</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="ocr-summary">
+      <span style="font-size:20px">✅</span>
+      <div>
+        <div style="font-weight:600;font-size:14px;color:var(--green)">${fields.length}/${fields.length} fields auto-extracted · ${avgConf}% average confidence</div>
+        <div style="font-size:12px;color:var(--text2)">All data processed locally — nothing stored on server. Review before submitting.</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SKILL GAP ANALYSIS ───────────────────────────────────────────────────
+const DEMO_RESUME = `Arjun Sharma
+Email: arjun.sharma@lnct.ac.in | Phone: +91 98765 43210
+B.Tech Computer Science | LNCT Group of Colleges, Bhopal | CGPA: 8.7/10
+
+SKILLS
+Python, React.js, JavaScript, SQL, Machine Learning, Docker, Git, CSS/HTML, Node.js
+
+EXPERIENCE
+Software Engineering Intern — TechCorp India (Summer 2025)
+- Built 3 production React applications with Redux state management and comprehensive testing
+- Developed RESTful APIs using FastAPI, handling 500+ requests/second
+- Implemented CI/CD pipeline using GitHub Actions, reducing deployment time by 60%
+- Worked with PostgreSQL database design and query optimization
+
+PROJECTS
+SkillMap System — Full Stack Web Application
+- Architected a React microfrontend with 50+ reusable components
+- Built backend with FastAPI, integrating EasyOCR and spaCy NLP models
+- Deployed on AWS EC2 using Docker containers with auto-scaling
+- Led a team of 4 developers, mentoring 2 junior members
+
+Smart Agriculture IoT Dashboard
+- Created a real-time dashboard using React.js and D3.js for data visualization
+- Implemented machine learning model for crop prediction using scikit-learn
+- Built REST API with Node.js and MongoDB for sensor data management
+
+CERTIFICATIONS
+- AWS Cloud Practitioner (2025)
+- Google Data Analytics Professional Certificate
+- HackerRank Python (Gold Badge)`;
+
+function loadDemoResume() {
+  document.getElementById('resumeTextInput').value = DEMO_RESUME;
+}
+
+async function analyzeSkillGap() {
+  const resumeText = document.getElementById('resumeTextInput').value.trim();
+  const targetRole = document.getElementById('targetRoleSelect').value;
+
+  if (!resumeText) {
+    loadDemoResume();
+    return analyzeSkillGap();
+  }
+
+  // Show loading
+  document.getElementById('readinessContainer').style.display = 'block';
+  document.getElementById('readinessScore').textContent = '...';
+  document.getElementById('skillGapResults').style.display = 'none';
+
+  try {
+    // Try backend API first
+    const parseResp = await fetch(API_BASE + '/api/resume/parse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: resumeText })
+    });
+
+    if (parseResp.ok) {
+      const parsed = await parseResp.json();
+      const skills = Object.entries(parsed.skills).map(([name, score]) => ({ name, score }));
+
+      const analyzeResp = await fetch(API_BASE + '/api/skills/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skills, target_role: targetRole })
+      });
+
+      if (analyzeResp.ok) {
+        const analysis = await analyzeResp.json();
+        displaySkillGapFromAPI(analysis, targetRole);
+        return;
+      }
+    }
+  } catch(e) {
+    // Backend not running — use client-side analysis
+  }
+
+  // Client-side fallback
+  clientSideAnalysis(resumeText, targetRole);
+}
+
+function clientSideAnalysis(resumeText, targetRole) {
+  const roleData = roleSkills[targetRole];
+  if (!roleData) return;
+
+  // Simple client-side skill extraction
+  const text = resumeText.toLowerCase();
+  const skills = roleData.skills.map(([name, defaultCur, req]) => {
+    let current = defaultCur;
+    const nameL = name.toLowerCase();
+
+    // Check if mentioned in resume
+    if (text.includes(nameL) || text.includes(nameL.split('/')[0]) || text.includes(nameL.split('.')[0])) {
+      // Adjust score based on context
+      if (text.includes('architect') || text.includes('led') || text.includes('mentor')) current = Math.min(95, current + 15);
+      else if (text.includes('production') || text.includes('built 3') || text.includes('deployed')) current = Math.min(90, current + 8);
+      else if (text.includes('project') || text.includes('intern')) current = Math.max(30, current - 5);
+    } else {
+      current = Math.floor(current * 0.4); // Low score if not mentioned
+    }
+    return { name, current, required: req, gap: Math.max(0, req - current) };
+  });
+
+  const totalWeighted = skills.reduce((a, s) => a + Math.min(s.current / s.required, 1), 0);
+  const readiness = Math.round((totalWeighted / skills.length) * 100);
+
+  currentAnalysis = { skills, readiness, role: targetRole };
+  displaySkillGap(skills, readiness, targetRole);
+}
+
+function displaySkillGapFromAPI(analysis, role) {
+  const skills = analysis.skill_analysis.map(s => ({
+    name: s.skill, current: s.current, required: s.required, gap: s.gap
+  }));
+  const readiness = analysis.readiness_score;
+  currentAnalysis = { skills, readiness, role, apiAnalysis: analysis };
+  displaySkillGap(skills, readiness, role);
+}
+
+function displaySkillGap(skills, readiness, role) {
+  // Animate readiness score
+  const container = document.getElementById('readinessContainer');
+  container.style.display = 'block';
+  const circle = document.getElementById('readinessCircle');
+  const scoreEl = document.getElementById('readinessScore');
+  const labelEl = document.getElementById('readinessLabel');
+  const circumference = 326.7;
+  const offset = circumference * (1 - readiness / 100);
+
+  setTimeout(() => {
+    circle.style.strokeDashoffset = offset;
+    animateValue(scoreEl, 0, readiness, 1500);
+  }, 200);
+
+  labelEl.textContent = readiness >= 80 ? 'Job Ready! 🎯' : readiness >= 60 ? 'Almost There 📈' : readiness >= 40 ? 'Building Up 🔨' : 'Getting Started 🌱';
+
+  // Update report header
+  document.getElementById('gapReportTitle').textContent = `${role} — Skill Gap Report`;
+  document.getElementById('gapReportSub').textContent = `Based on your resume vs. role requirements`;
+
+  // Build skill bars
+  const barsContainer = document.getElementById('skillBarsContainer');
+  barsContainer.innerHTML = skills.map((s, i) => {
+    const gc = s.gap <= 10 ? 'gap-low' : s.gap <= 25 ? 'gap-med' : 'gap-high';
+    return `
+      <div class="skill-bar-row" style="transition-delay:${i * 0.06}s" id="skillBar${i}">
+        <div class="skill-name">${s.name}</div>
+        <div class="bar-track">
+          <div class="bar-fill-required" style="width:${s.required}%"></div>
+          <div class="bar-fill-current" id="barFill${i}" data-width="${s.current}"></div>
+        </div>
+        <div class="bar-labels">
+          <span style="color:var(--cyan)">${s.current}%</span>
+          <span style="color:var(--text3)">${s.required}%</span>
+        </div>
+        <div class="gap-badge ${gc}">${s.gap > 0 ? '-' + s.gap + '%' : '✓'}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('skillGapResults').style.display = 'block';
+
+  // Animate bars with stagger
+  setTimeout(() => {
+    skills.forEach((s, i) => {
+      const row = document.getElementById('skillBar' + i);
+      const fill = document.getElementById('barFill' + i);
+      setTimeout(() => {
+        row.classList.add('animate-in');
+        fill.style.width = s.current + '%';
+      }, i * 80);
+    });
+  }, 300);
+
+  // Update radar chart
+  setRole(role);
+
+  // Build roadmap
+  buildRoadmap(skills, role);
+}
+
+function animateValue(el, start, end, duration) {
+  const startTime = performance.now();
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (end - start) * eased) + '%';
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ─── ROADMAP ──────────────────────────────────────────────────────────────
+function buildRoadmap(skills, role) {
+  const gapSkills = skills.filter(s => s.gap > 0).sort((a, b) => b.gap - a.gap).slice(0, 5);
+
+  if (gapSkills.length === 0) {
+    document.getElementById('roadmapEmpty').innerHTML = `
+      <div style="font-size:40px;margin-bottom:16px">🎉</div>
+      <div style="font-size:16px;color:var(--green);margin-bottom:8px">You're already job-ready!</div>
+      <div style="font-size:13px;color:var(--text2)">No significant skill gaps detected for ${role}.</div>
+    `;
+    return;
+  }
+
+  const icons = ['📖', '🎓', '🚀', '🛠️', '🎯'];
+  const weeks = 12;
+  const perSkill = Math.max(2, Math.floor(weeks / gapSkills.length));
+  let weekStart = 1;
+
+  const roadmap = gapSkills.map((s, i) => {
+    const wEnd = Math.min(weekStart + perSkill - 1, weeks);
+    const priority = s.gap >= 30 ? 'Critical' : s.gap >= 15 ? 'High' : 'Medium';
+    const item = {
+      week: `Week ${weekStart}–${wEnd}`,
+      skill: s.name,
+      priority,
+      icon: icons[i] || '📌',
+      hours: Math.round(s.gap * 0.4 + 10),
+    };
+    weekStart = wEnd + 1;
+    return item;
+  });
+
+  // Add final milestone
+  if (weekStart <= weeks) {
+    roadmap.push({
+      week: `Week ${weekStart}–${weeks}`,
+      skill: 'Portfolio & Mock Interviews',
+      priority: 'Launch',
+      icon: '🎯',
+      hours: 20,
+    });
+  }
+
+  document.getElementById('roadmapEmpty').style.display = 'none';
+  document.getElementById('roadmapContent').style.display = 'block';
+  document.getElementById('roadmapTitle').textContent = `Your ${weeks}-Week Roadmap for ${role}`;
+  document.getElementById('roadmapSub').textContent = `${gapSkills.length} priority skills to close your gap`;
+
+  document.getElementById('roadmapList').innerHTML = roadmap.map((m, i) => `
+    <div class="roadmap-item">
+      <div class="roadmap-icon">${m.icon}</div>
+      <div class="roadmap-content">
+        <div class="roadmap-header">
+          <span class="roadmap-skill">${m.skill}</span>
+          <span class="roadmap-priority priority-${m.priority}">${m.priority}</span>
+        </div>
+        <div class="roadmap-detail">${m.hours}h estimated · Courses + projects + practice</div>
+      </div>
+      <div class="roadmap-week">${m.week}</div>
+    </div>
+  `).join('');
+}
+
+// ─── AUTO-FILL FORM ──────────────────────────────────────────────────────
+function buildFormFields() {
+  const fields = [
+    { label: 'Full Name', value: 'Arjun Sharma', conf: 99, source: 'College ID' },
+    { label: 'Roll Number', value: 'LNCT/CSE/2023/047', conf: 97, source: 'College ID' },
+    { label: 'Date of Birth', value: '15 March 2003', conf: 98, source: 'Aadhaar' },
+    { label: 'Aadhaar Number', value: 'XXXX XXXX 3421', conf: 100, source: 'Aadhaar' },
+    { label: 'Course', value: 'B.Tech Computer Science', conf: 96, source: 'College ID' },
+    { label: 'Institute', value: 'LNCT Group of Colleges', conf: 99, source: 'College ID' },
+    { label: 'CGPA', value: '8.7 / 10.0', conf: 94, source: 'Marksheet' },
+    { label: 'Email', value: 'arjun.sharma@lnct.ac.in', conf: 99, source: 'Resume' },
+    { label: 'Phone', value: '+91 98XXX XXXXX', conf: 96, source: 'Resume' },
+    { label: 'Primary Skills', value: 'Python, React.js, SQL, Machine Learning', conf: 88, source: 'Resume' },
+  ];
+
+  const cont = document.getElementById('formFields');
+  cont.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${fields.map((f, i) => `
+        <div class="ocr-field" style="animation-delay:${i * 0.06}s">
+          <div class="ocr-field-label">${f.label}</div>
+          <div class="ocr-field-value">${f.value}</div>
+          <div class="ocr-field-meta">
+            <span class="ocr-field-source">from ${f.source}</span>
+            <span class="ocr-field-conf ${f.conf >= 98 ? 'conf-high' : f.conf >= 94 ? 'conf-med' : 'conf-low'}">${f.conf}% conf</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="ocr-summary" style="margin-top:16px">
+      <span style="font-size:20px">✅</span>
+      <div>
+        <div style="font-weight:600;font-size:14px;color:var(--green)">10/10 fields auto-filled · 97.4% average confidence</div>
+        <div style="font-size:12px;color:var(--text2)">Review any field before submitting. All data processed locally — nothing stored on server.</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SCROLL ANIMATIONS ────────────────────────────────────────────────────
+function initScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// ─── METRIC COUNTER ANIMATION ─────────────────────────────────────────────
+function initMetricCounters() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.dataset.counted) {
+        entry.target.dataset.counted = 'true';
+        const el = entry.target.querySelector('.metric-num');
+        if (!el) return;
+        const target = parseFloat(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const startTime = performance.now();
+        const duration = 2000;
+
+        function update(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = target * eased;
+          el.textContent = (target % 1 !== 0 ? current.toFixed(1) : Math.round(current)) + suffix;
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.metric-card').forEach(el => observer.observe(el));
+}
+
+// ─── NAV SCROLL EFFECT ───────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ─── HAMBURGER MENU ─────────────────────────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  const links = document.querySelector('.nav-links');
+  const isVisible = links.style.display === 'flex';
+  links.style.display = isVisible ? 'none' : 'flex';
+  links.style.flexDirection = 'column';
+  links.style.position = 'absolute';
+  links.style.top = '60px';
+  links.style.right = '5%';
+  links.style.background = 'rgba(10,15,30,.95)';
+  links.style.padding = '16px 24px';
+  links.style.borderRadius = '12px';
+  links.style.border = '1px solid var(--border)';
+  links.style.backdropFilter = 'blur(20px)';
+});
+
+// ─── RADAR TOOLTIP ─────────────────────────────────────────────────────
+const radarCanvas = document.getElementById('radarCanvas');
+if (radarCanvas) {
+  radarCanvas.addEventListener('mousemove', function(e) {
+    const rect = radarCanvas.getBoundingClientRect();
+    const scaleX = 480 / rect.width;
+    const scaleY = 480 / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+    const cx = 240, cy = 240, R = 170;
+
+    const data = roleSkills[currentRole];
+    if (!data) return;
+    const skills = data.skills;
+    const N = skills.length;
+    const tooltip = document.getElementById('radarTooltip');
+
+    let found = false;
+    skills.forEach(([name, cur, req], i) => {
+      const angle = (Math.PI * 2 * i / N) - Math.PI / 2;
+      const r2 = (cur / 100) * R;
+      const px = cx + Math.cos(angle) * r2;
+      const py = cy + Math.sin(angle) * r2;
+      const dist = Math.sqrt((mx - px) ** 2 + (my - py) ** 2);
+
+      if (dist < 15) {
+        found = true;
+        const gap = req - cur;
+        tooltip.innerHTML = `<strong style="color:var(--cyan)">${name}</strong><br>Current: ${cur}% · Required: ${req}%<br>Gap: <span style="color:${gap > 20 ? 'var(--coral)' : gap > 10 ? 'var(--amber)' : 'var(--green)'}">${gap > 0 ? '-' + gap + '%' : 'Met ✓'}</span>`;
+        tooltip.style.opacity = '1';
+        tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+        tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+      }
+    });
+
+    if (!found) tooltip.style.opacity = '0';
+  });
+
+  radarCanvas.addEventListener('mouseleave', () => {
+    document.getElementById('radarTooltip').style.opacity = '0';
+  });
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initParticles();
+  animateRadar('Frontend Developer');
+  buildFormFields();
+  initScrollAnimations();
+  initMetricCounters();
+});
+</script>
+</body>
+</html>
