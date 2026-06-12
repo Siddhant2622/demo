@@ -565,7 +565,7 @@ export default function InterviewPage() {
         <WarningOverlay show={showWarning} type={warningType} warningLevel={warningLevel}
           message={warningMessage} countdown={warningType === "fullscreen" ? fsCountdown : undefined}
           onReturn={warningType === "fullscreen" ? async () => {
-            try { await document.documentElement.requestFullscreen(); setShowWarning(false); clearInterval(countdownRef.current); } catch {}
+            try { await document.documentElement.requestFullscreen(); setShowWarning(false); if (countdownRef.current) clearInterval(countdownRef.current); } catch {}
           } : undefined}
           onDismiss={() => setShowWarning(false)} />
 

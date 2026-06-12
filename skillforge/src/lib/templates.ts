@@ -141,7 +141,7 @@ export function generateTemplate(
     return `
       <header class="hero section">
         ${templateId === 'minimal' ? `<div>${photoHtml}</div><div>` : ''}
-        ${templateId !== 'minimal' && templateId !== 'developer' ? photoHtml : ''}
+        ${templateId !== 'minimal' ? photoHtml : ''}
         
         <h1>${personalInfo.firstName} ${personalInfo.lastName}</h1>
         <div class="headline">${personalInfo.headline || 'Software Developer'}</div>

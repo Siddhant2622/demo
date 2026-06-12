@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CheckCircle2, ChevronRight, ChevronLeft, Upload, Loader2, Sparkles, AlertTriangle, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
