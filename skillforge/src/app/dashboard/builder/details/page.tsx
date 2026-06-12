@@ -15,8 +15,11 @@ export default function DetailsStep() {
   const router = useRouter();
   const { mergedData, updateMergedData } = usePortfolioStore();
 
-  const { register, control, handleSubmit, reset } = useForm({
-    defaultValues: mergedData
+  const { register, control, handleSubmit, reset } = useForm<any>({
+    defaultValues: {
+      ...mergedData,
+      skills: Array.isArray(mergedData.skills) ? mergedData.skills.join(', ') : mergedData.skills
+    }
   });
 
   const [photoPreview, setPhotoPreview] = useState(mergedData.personalInfo.profilePhoto || "");
